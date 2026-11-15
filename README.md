@@ -1,146 +1,146 @@
 # fastFile
 
-Um "mediafire" feito em Django: qualquer pessoa pode navegar e buscar arquivos, e quem sobe um arquivo decide quem pode baixar — livre, com **senha**, com **aprovação do dono**, ou os dois.
+A "MediaFire" built with Django: anyone can browse and search files, and whoever uploads a file decides who can download it — open to everyone, behind a **password**, behind the **owner's approval**, or both.
 
-![Página inicial](docs/screenshots/home.jpg)
+![Home page](docs/screenshots/home.jpg)
 
-## Funcionalidades
+## Features
 
-- **Busca** por nome de arquivo, com paginação, ordenada pelos mais baixados.
-- **Navegação sem login**: visitantes veem todos os arquivos e baixam os livres.
-- **Upload** com arrastar e soltar e barra de progresso. Cada arquivo pode ter:
-  - **Senha** — quem acerta a senha ganha acesso permanente ao arquivo (e o dono é notificado);
-  - **Aprovação do dono** — o usuário envia um pedido e o dono aceita ou recusa pela caixa de entrada.
-- **Perfil** com os arquivos do usuário e uma **caixa de entrada** com pedidos de acesso (aceitar / recusar) e notificações.
-- **Configurações**: trocar nome de usuário, senha, email ou apagar a conta (apaga também os arquivos enviados).
-- Contador de downloads, tema claro/escuro automático e animações que respeitam `prefers-reduced-motion`.
+- **Search** by file name, paginated and sorted by most downloaded.
+- **Browse without logging in**: visitors see every file and can download the open ones.
+- **Upload** with drag and drop and a progress bar. Each file can have:
+  - a **password** — whoever gets it right gains permanent access to the file (and the owner is notified);
+  - **owner approval** — the user sends a request and the owner accepts or rejects it from their inbox.
+- **Profile** with the user's files and an **inbox** with access requests (accept / reject) and notifications.
+- **Settings**: change username, password or email, or delete the account (which also deletes every uploaded file).
+- Download counter, automatic light/dark theme and animations that respect `prefers-reduced-motion`.
 
-## Telas
+## Screens
 
-| Arquivo protegido | Perfil + caixa de entrada |
+| Protected file | Profile + inbox |
 |---|---|
-| ![Arquivo com senha e aprovação](docs/screenshots/arquivo-bloqueado.jpg) | ![Perfil com pedidos de acesso](docs/screenshots/perfil-inbox.jpg) |
+| ![File with password and approval](docs/screenshots/arquivo-bloqueado.jpg) | ![Profile with access requests](docs/screenshots/perfil-inbox.jpg) |
 
 | Upload | Login |
 |---|---|
 | ![Upload](docs/screenshots/upload.jpg) | ![Login](docs/screenshots/login.jpg) |
 
-## Tecnologias e dependências
+## Tech and dependencies
 
-| O quê | Versão |
+| What | Version |
 |---|---|
-| Python | 3.10+ (testado no 3.14) |
+| Python | 3.10+ (tested on 3.14) |
 | Django | 5.2 (`requirements.txt`) |
-| Banco de dados | SQLite (já vem com o Python) |
-| Front-end | HTML + CSS + JavaScript puro, sem build |
-| Ícones | [Lucide](https://lucide.dev) via CDN |
-| Fontes | Archivo e IBM Plex Mono via Google Fonts |
+| Database | SQLite (ships with Python) |
+| Front end | Plain HTML + CSS + JavaScript, no build step |
+| Icons | [Lucide](https://lucide.dev) via CDN |
+| Fonts | Archivo and IBM Plex Mono via Google Fonts |
 
-Não precisa de Node, npm nem nada além do Python.
+No Node, npm or anything else besides Python.
 
-## Como rodar
+## Running it
 
 ```bash
-# 1. clonar
-git clone https://github.com/cauekkz/midiafire-com-search-bar-feito-em-Django.git
-cd midiafire-com-search-bar-feito-em-Django
+# 1. clone
+git clone https://github.com/cauekkz/fastfile.git
+cd fastfile
 
-# 2. criar e ativar um ambiente virtual
+# 2. create and activate a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
-# 3. instalar as dependências
+# 3. install the dependencies
 pip install -r requirements.txt
 
-# 4. criar o banco
+# 4. create the database
 cd shareWeb
 python manage.py migrate
 
-# 5. (opcional) popular com dados de demonstração
+# 5. (optional) fill it with demo data
 python manage.py seed_demo
 
-# 6. subir o servidor
+# 6. start the server
 python manage.py runserver
 ```
 
-Abra **http://127.0.0.1:8000** no navegador.
+Open **http://127.0.0.1:8000** in your browser.
 
-Para acessar o admin do Django (`/admin`), crie um superusuário com `python manage.py createsuperuser`.
+To use the Django admin (`/admin`), create a superuser with `python manage.py createsuperuser`.
 
-### Dados de demonstração
+### Demo data
 
-O comando `python manage.py seed_demo` cria 4 usuários, 15 arquivos de tipos variados e alguns pedidos de acesso pendentes. Pode rodar quantas vezes quiser — ele não duplica nada.
+`python manage.py seed_demo` creates 4 users, 15 files of different types and a few pending access requests. You can run it as many times as you like — it never duplicates anything.
 
-Todas as contas usam a senha **`fastfile123`**:
+Every account uses the password **`fastfile123`**:
 
-| Usuário | Arquivos |
+| User | Files |
 |---|---|
-| `ana_dev` | Django Cheatsheet, Portfolio Website Source *(aprovação)*, ... |
-| `bruno_music` | Lo-fi Study Mix, Beat Pack Vol 3 *(senha)*, Live Session Recording *(aprovação)* |
-| `carla_design` | Mountain Sunset Wallpaper, Design System Kit *(senha + aprovação)*, ... |
-| `diego_gamer` | Speedrun Saves *(senha)*, Gameplay Highlights, Tournament Bracket *(aprovação)*, ... |
+| `ana_dev` | Django Cheatsheet, Portfolio Website Source *(approval)*, ... |
+| `bruno_music` | Lo-fi Study Mix, Beat Pack Vol 3 *(password)*, Live Session Recording *(approval)* |
+| `carla_design` | Mountain Sunset Wallpaper, Design System Kit *(password + approval)*, ... |
+| `diego_gamer` | Speedrun Saves *(password)*, Gameplay Highlights, Tournament Bracket *(approval)*, ... |
 
-Senhas dos arquivos protegidos:
+Passwords for the protected files:
 
-| Arquivo | Senha |
+| File | Password |
 |---|---|
 | Beat Pack Vol 3 | `beats` |
 | Design System Kit | `kit2026` |
 | Speedrun Saves | `gg` |
 
-> Os arquivos de demonstração são só texto de preenchimento com a extensão certa — servem para testar o fluxo, não para abrir.
+> The demo files are just filler text with the right extension — they're there to test the flow, not to be opened.
 
-## Como usar
+## How to use
 
-1. **Explorar** — a página inicial lista os arquivos mais baixados. Use a barra de busca para filtrar pelo nome.
-2. **Criar conta / entrar** — botões *Sign up* e *Log in* no topo.
-3. **Enviar um arquivo** — em *Upload*, arraste o arquivo, dê um nome único e, se quiser, ative:
-   - *Protect with password* para exigir senha;
-   - *Require my approval* para exigir sua aprovação.
-4. **Baixar um arquivo protegido**
-   - Com senha: clique em *Unlock* no card (ou na página do arquivo) e digite a senha.
-   - Com aprovação: clique em *Ask* / *Ask … for access*. O dono recebe o pedido.
-5. **Aprovar pedidos** — no seu perfil (seu nome no topo), a caixa de entrada mostra os pedidos com os botões *Accept* e *Reject*. Um número vermelho no topo avisa quando há algo novo.
-6. **Configurações** — ícone de engrenagem: trocar nome, senha, email ou apagar a conta.
+1. **Explore** — the home page lists the most downloaded files. Use the search bar to filter by name.
+2. **Sign up / log in** — *Sign up* and *Log in* buttons at the top.
+3. **Upload a file** — under *Upload*, drop the file in, give it a unique name and, if you want, turn on:
+   - *Protect with password* to require a password;
+   - *Require my approval* to require your approval.
+4. **Download a protected file**
+   - Password: click *Unlock* on the card (or on the file page) and type the password.
+   - Approval: click *Ask* / *Ask … for access*. The owner gets the request.
+5. **Approve requests** — on your profile (your name at the top), the inbox shows requests with *Accept* and *Reject* buttons. A red number at the top tells you when something new arrives.
+6. **Settings** — the gear icon: change your username, password or email, or delete the account.
 
-## Estrutura do projeto
+## Project structure
 
 ```
 shareWeb/
 ├── manage.py
-├── shareFiles/            # configurações do projeto Django
-└── fastFile/              # o app
+├── shareFiles/            # Django project settings
+└── fastFile/              # the app
     ├── models.py          # User, File, Message, RequestMessage
-    ├── views.py           # páginas + APIs (/requests, /allowUser, /deleteMessages)
+    ├── views.py           # pages + APIs (/requests, /allowUser, /deleteMessages)
     ├── urls.py
-    ├── util.py            # paginação e validações
-    ├── templatetags/      # filtro can_download
+    ├── util.py            # pagination and validation helpers
+    ├── templatetags/      # can_download filter
     ├── management/commands/seed_demo.py
     ├── templates/fastFile/
     │   ├── layout.html
     │   ├── index.html, file.html, perfil.html, upload.html, ...
-    │   └── partials/      # grade de arquivos, ícones, painel do login
+    │   └── partials/      # file grid, icons, login side panel
     └── static/fastFile/
-        ├── css/app.css    # todo o design (tokens, claro/escuro, animações)
-        └── js/            # app.js (toasts, desbloqueio, pedidos), perfil.js, upload.js
+        ├── css/app.css    # the whole design (tokens, light/dark, animations)
+        └── js/            # app.js (toasts, unlock, requests), perfil.js, upload.js
 ```
 
-### Rotas
+### Routes
 
-| Rota | O que faz |
+| Route | What it does |
 |---|---|
-| `/` | Lista de arquivos (mais baixados) |
-| `/search?q=` | Busca por nome |
-| `/file/<nome>` | Página do arquivo |
-| `/file/<nome>/download` | Download (respeita senha/aprovação) |
-| `/upload` | Enviar arquivo *(login)* |
-| `/perfil/<usuário>` | Perfil e caixa de entrada *(login)* |
-| `/settings` | Configurações da conta *(login)* |
-| `/requests` | API: desbloquear com senha ou pedir aprovação *(POST, JSON)* |
-| `/allowUser` | API: dono aceita/recusa um pedido *(POST, JSON)* |
-| `/deleteMessages` | API: limpar notificações *(POST)* |
+| `/` | File list (most downloaded) |
+| `/search?q=` | Search by name |
+| `/file/<name>` | File page |
+| `/file/<name>/download` | Download (respects password/approval) |
+| `/upload` | Upload a file *(login)* |
+| `/perfil/<user>` | Profile and inbox *(login)* |
+| `/settings` | Account settings *(login)* |
+| `/requests` | API: unlock with a password or ask for approval *(POST, JSON)* |
+| `/allowUser` | API: owner accepts/rejects a request *(POST, JSON)* |
+| `/deleteMessages` | API: clear notifications *(POST)* |
 
-## Observações
+## Notes
 
-- O projeto é para estudo/desenvolvimento local: `DEBUG = True` e a `SECRET_KEY` está no `settings.py`. Para colocar em produção, mova a chave para uma variável de ambiente, desligue o `DEBUG` e configure `ALLOWED_HOSTS`.
-- Os arquivos enviados ficam em `shareWeb/media/uploads/` e o banco em `shareWeb/db.sqlite3` — ambos estão no `.gitignore`.
+- This project is meant for study and local development: `DEBUG = True` and the `SECRET_KEY` lives in `settings.py`. To deploy it, move the key to an environment variable, turn `DEBUG` off and set `ALLOWED_HOSTS`.
+- Uploaded files go to `shareWeb/media/uploads/` and the database to `shareWeb/db.sqlite3` — both are in `.gitignore`.
