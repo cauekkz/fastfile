@@ -12,7 +12,7 @@
                 <a href="{% url 'fileName' fileName=file.name %}">{{ file.name }}</a>
                 <div class="file-author">
                     <span class="avatar" aria-hidden="true">{{ file.postedBy.username|first }}</span>
-                    <a href="{% url 'perfil' username=file.postedBy.username %}">{{ file.postedBy.username }}</a>
+                    <a href="{% url 'profile' username=file.postedBy.username %}">{{ file.postedBy.username }}</a>
                 </div>
             </div>
         </div>

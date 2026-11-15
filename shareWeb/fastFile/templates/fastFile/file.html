@@ -22,7 +22,7 @@
         </div>
 
         <dl class="detail-grid">
-            <div><dt><i data-lucide="user-round"></i>Uploaded by</dt><dd><a href="{% url 'perfil' username=author.username %}">{{ author.username }}</a></dd></div>
+            <div><dt><i data-lucide="user-round"></i>Uploaded by</dt><dd><a href="{% url 'profile' username=author.username %}">{{ author.username }}</a></dd></div>
             <div><dt><i data-lucide="calendar"></i>Date</dt><dd>{{ dateAndTime|date:"M d, Y · H:i" }}</dd></div>
             <div><dt><i data-lucide="hard-drive"></i>Size</dt><dd>{{ file.size_display }}</dd></div>
             <div><dt><i data-lucide="download"></i>Downloads</dt><dd>{{ downloads }}</dd></div>

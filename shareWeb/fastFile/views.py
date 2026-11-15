@@ -168,13 +168,13 @@ def download_file(request,fileName):
         })
 
 @login_required
-def perfil(request,username):
+def profile(request,username):
     if request.method == "GET":
 
         number = request.GET.get('page')
         user = User.objects.filter(username=username)
         if not user.exists():
-            return render(request, "fastFile/perfil.html", {'user': None})
+            return render(request, "fastFile/profile.html", {'user': None})
         user = user.first()
         if request.user == user:
             inbox = True
@@ -189,7 +189,7 @@ def perfil(request,username):
             requests = False
         page, pageLinks =  util.nav_page( number ,File.objects.filter(postedBy=user).order_by('-downloadsCount'))
         if pageLinks is None and page is not None:
-            return render(request, "fastFile/perfil.html",{
+            return render(request, "fastFile/profile.html",{
                 'user':user,
                 'inbox':inbox,
                 'page':page,
@@ -197,7 +197,7 @@ def perfil(request,username):
                 'requests':requests
             })
         elif pageLinks is None and page is None:
-            return render(request, "fastFile/perfil.html", {
+            return render(request, "fastFile/profile.html", {
                 'user':user,
                 'inbox':inbox,
                 "message": 'Page not exist',
@@ -205,7 +205,7 @@ def perfil(request,username):
                 'requests':requests
             })
         else:
-            return render(request,"fastFile/perfil.html",{
+            return render(request,"fastFile/profile.html",{
                 'user':user,
                 'inbox':inbox,
                 'page':page,
@@ -287,7 +287,7 @@ def upload(request):
     return redirect('fileName', fileName=fileName)
 
 @login_required
-def settings_perfil(request):
+def settings_profile(request):
     if request.method == "GET":
         return render(request,'fastFile/settings.html')
     DECISIONS = ['username','password','email','delete']
@@ -322,7 +322,7 @@ def settings_perfil(request):
             return render(request,'fastFile/settings.html',{
                         'message':f' change {decision} '
             })
-        #delete perfil 
+        #delete profile 
         uploads = user.posteds.all()
         for upload in uploads:
             if upload.file.path:

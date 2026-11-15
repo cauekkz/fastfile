@@ -19,7 +19,7 @@ A "MediaFire" built with Django: anyone can browse and search files, and whoever
 
 | Protected file | Profile + inbox |
 |---|---|
-| ![File with password and approval](docs/screenshots/arquivo-bloqueado.jpg) | ![Profile with access requests](docs/screenshots/perfil-inbox.jpg) |
+| ![File with password and approval](docs/screenshots/locked-file.jpg) | ![Profile with access requests](docs/screenshots/profile-inbox.jpg) |
 
 | Upload | Login |
 |---|---|
@@ -118,11 +118,11 @@ shareWeb/
     ├── management/commands/seed_demo.py
     ├── templates/fastFile/
     │   ├── layout.html
-    │   ├── index.html, file.html, perfil.html, upload.html, ...
+    │   ├── index.html, file.html, profile.html, upload.html, ...
     │   └── partials/      # file grid, icons, login side panel
     └── static/fastFile/
         ├── css/app.css    # the whole design (tokens, light/dark, animations)
-        └── js/            # app.js (toasts, unlock, requests), perfil.js, upload.js
+        └── js/            # app.js (toasts, unlock, requests), profile.js, upload.js
 ```
 
 ### Routes
@@ -134,7 +134,7 @@ shareWeb/
 | `/file/<name>` | File page |
 | `/file/<name>/download` | Download (respects password/approval) |
 | `/upload` | Upload a file *(login)* |
-| `/perfil/<user>` | Profile and inbox *(login)* |
+| `/profile/<user>` | Profile and inbox *(login)* |
 | `/settings` | Account settings *(login)* |
 | `/requests` | API: unlock with a password or ask for approval *(POST, JSON)* |
 | `/allowUser` | API: owner accepts/rejects a request *(POST, JSON)* |

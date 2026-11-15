@@ -27,7 +27,7 @@
                     {% with pending=request.user.requestsMessages.count notes=request.user.messages.count %}
                     <li><a class="nav-link {% if request.resolver_match.url_name == 'upload' %}active{% endif %}" href="{% url 'upload' %}"><i data-lucide="upload-cloud"></i><span class="nav-label-sm">Upload</span></a></li>
                     <li>
-                        <a class="nav-link {% if inbox %}active{% endif %}" href="{% url 'perfil' username=request.user.username %}" aria-label="Profile and inbox{% if pending or notes %}, {{ pending|add:notes }} new{% endif %}">
+                        <a class="nav-link {% if inbox %}active{% endif %}" href="{% url 'profile' username=request.user.username %}" aria-label="Profile and inbox{% if pending or notes %}, {{ pending|add:notes }} new{% endif %}">
                             <i data-lucide="user-round"></i><span class="nav-label-sm">{{ request.user.username }}</span>
                             {% if pending or notes %}<span class="nav-badge">{{ pending|add:notes }}</span>{% endif %}
                         </a>

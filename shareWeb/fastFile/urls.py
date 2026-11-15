@@ -11,9 +11,9 @@ urlpatterns = [
     path('file/<str:fileName>/download', views.download_file, name='download'),
     path('file/<str:fileName>', views.fileName, name='fileName'),
     path('allowUser',views.allowUser, name='allowUser'),
-    path('perfil/<str:username>', views.perfil, name='perfil'),
+    path('profile/<str:username>', views.profile, name='profile'),
     path('search', views.search, name='search'),
-    path('settings', views.settings_perfil, name='settings'),
+    path('settings', views.settings_profile, name='settings'),
     path('deleteMessages', views.delete_messages, name='deleteMessages')
     
 ]

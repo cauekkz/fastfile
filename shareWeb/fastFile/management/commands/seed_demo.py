@@ -8,7 +8,7 @@ PASSWORD = 'fastfile123'
 
 USERS = ['ana_dev', 'bruno_music', 'carla_design', 'diego_gamer']
 
-# (dono, nome, arquivo, tamanho KB, senha do arquivo, exige aprovação, downloads)
+# (owner, name, file name, size in KB, file password, requires approval, downloads)
 FILES = [
     ('ana_dev', 'Django Cheatsheet', 'django-cheatsheet.pdf', 220, '', False, 3),
     ('ana_dev', 'Portfolio Website Source', 'portfolio-site.zip', 1800, '', True, 0),
@@ -27,7 +27,7 @@ FILES = [
     ('diego_gamer', 'Tournament Bracket', 'bracket.xlsx', 35, '', True, 0),
 ]
 
-# (quem pede, arquivo)
+# (requester, file)
 REQUESTS = [
     ('diego_gamer', 'Portfolio Website Source'),
     ('carla_design', 'Tournament Bracket'),
@@ -37,7 +37,7 @@ REQUESTS = [
 
 
 class Command(BaseCommand):
-    help = 'Popula o banco com usuários, arquivos e pedidos de acesso de demonstração.'
+    help = 'Fills the database with demo users, files and access requests.'
 
     def handle(self, *args, **options):
         users = {}
@@ -73,4 +73,4 @@ class Command(BaseCommand):
                                    message=f'diego_gamer can download your {beat.name} file')
 
         self.stdout.write(self.style.SUCCESS(
-            f'Pronto! {len(USERS)} usuários e {len(FILES)} arquivos. Senha de todas as contas: {PASSWORD}'))
+            f'Done! {len(USERS)} users and {len(FILES)} files. Password for every account: {PASSWORD}'))
