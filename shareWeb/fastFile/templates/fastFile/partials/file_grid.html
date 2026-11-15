@@ -1,0 +1,101 @@
+{% load fastfile_tags %}
+<div class="file-grid">
+{% for file in page.object_list %}
+    {% with allowed=file|can_download:request.user %}
+    <article class="file-card" data-kind="{{ file.kind }}" data-ext=".{{ file.extension|truncatechars:6 }}" data-name="{{ file.name }}" style="--i: {{ forloop.counter0 }}">
+        <div class="file-top">
+            <div class="file-icon" aria-hidden="true">
+                {% include "fastFile/partials/file_icon.html" with kind=file.kind %}
+                <span class="file-ext">{{ file.extension|truncatechars:5 }}</span>
+            </div>
+            <div class="file-title">
+                <a href="{% url 'fileName' fileName=file.name %}">{{ file.name }}</a>
+                <div class="file-author">
+                    <span class="avatar" aria-hidden="true">{{ file.postedBy.username|first }}</span>
+                    <a href="{% url 'perfil' username=file.postedBy.username %}">{{ file.postedBy.username }}</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-meta">
+            <span title="{{ file.postedAt }}"><i data-lucide="calendar"></i>{{ file.postedAt|timesince }} ago</span>
+            <span><i data-lucide="download"></i>{{ file.downloadsCount }}</span>
+            <span><i data-lucide="hard-drive"></i>{{ file.size_display }}</span>
+        </div>
+
+        <div class="file-foot">
+            <div class="badges">
+                {% if not file.is_restricted %}
+                    <span class="badge badge-free"><i data-lucide="globe"></i>Free</span>
+                {% elif allowed %}
+                    <span class="badge badge-ok"><i data-lucide="badge-check"></i>Unlocked</span>
+                {% else %}
+                    {% if file.has_password %}<span class="badge badge-lock"><i data-lucide="key-round"></i>Password</span>{% endif %}
+                    {% if file.userPermition %}<span class="badge badge-perm"><i data-lucide="shield-check"></i>Approval</span>{% endif %}
+                {% endif %}
+            </div>
+            <div class="file-actions">
+                {% if allowed %}
+                    <a class="chip-btn" href="{% url 'download' fileName=file.name %}" aria-label="Download {{ file.name }}"><i data-lucide="download"></i></a>
+                {% else %}
+                    {% if file.has_password %}
+                        <button type="button" class="chip-btn lock-btn" data-unlock="{{ file.name }}" aria-label="Unlock {{ file.name }} with password"><i data-lucide="lock"></i>Unlock</button>
+                    {% endif %}
+                    {% if file.userPermition %}
+                        <button type="button" class="chip-btn" data-request="{{ file.name }}" aria-label="Ask owner for access to {{ file.name }}"><i data-lucide="send"></i>Ask</button>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </article>
+    {% endwith %}
+{% empty %}
+    <div class="empty" style="grid-column: 1 / -1">
+        <div class="empty-icon"><i data-lucide="folder-search"></i></div>
+        <h3>{% if query %}Nothing found for “{{ query }}”{% else %}No files here yet{% endif %}</h3>
+        <p>{% if query %}Try another name or browse the most downloaded files.{% else %}Be the first to share something awesome.{% endif %}</p>
+        {% if request.user.is_authenticated %}<a class="btn btn-primary" href="{% url 'upload' %}"><i data-lucide="upload-cloud"></i><span>Upload a file</span></a>{% endif %}
+    </div>
+{% endfor %}
+</div>
+
+{% if linkPages %}
+<nav aria-label="Pagination">
+    <ul class="pagination">
+        {% if page.has_previous %}
+            <li><a class="page-link" href="?{% if query %}q={{ query|urlencode }}&{% endif %}page={{ page.previous_page_number }}"><i data-lucide="chevron-left"></i>Prev</a></li>
+        {% endif %}
+        {% for i in linkPages %}
+            <li><a class="page-link {% if i == page.number %}current{% endif %}" {% if i == page.number %}aria-current="page"{% endif %} href="?{% if query %}q={{ query|urlencode }}&{% endif %}page={{ i }}">{{ i }}</a></li>
+        {% endfor %}
+        {% if page.has_next %}
+            <li><a class="page-link" href="?{% if query %}q={{ query|urlencode }}&{% endif %}page={{ page.next_page_number }}">Next<i data-lucide="chevron-right"></i></a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<dialog class="modal" id="unlock-modal" aria-labelledby="unlock-title">
+    <form class="modal-body" id="unlock-form" method="dialog">
+        <div class="modal-head">
+            <div class="file-icon" aria-hidden="true"><i data-lucide="key-round"></i></div>
+            <div>
+                <h3 id="unlock-title">Password required</h3>
+                <p id="unlock-name"></p>
+            </div>
+            <button type="button" class="modal-close" data-close aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <div class="field">
+            <label for="unlock-password">File password</label>
+            <div class="input-wrap">
+                <i data-lucide="lock"></i>
+                <input class="input" id="unlock-password" type="password" required autocomplete="off" placeholder="Enter the password">
+                <button type="button" class="toggle-pass" aria-label="Show password"><i data-lucide="eye"></i></button>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" data-close><span>Cancel</span></button>
+            <button type="submit" class="btn btn-accent"><i data-lucide="lock-open"></i><span>Unlock</span></button>
+        </div>
+    </form>
+</dialog>

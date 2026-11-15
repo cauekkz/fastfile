@@ -8,31 +8,32 @@ from django.db.models import Q
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.paginator import Paginator
 from django.core.cache import cache
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .models import *
 
 import json
+import os
 from . import util
 # Create your views here.
 
-def index(request):
-    if request.method == 'GET':
+def site_stats():
+    from django.db.models import Sum
+    return {
+        'totalFiles': File.objects.count(),
+        'totalDownloads': File.objects.aggregate(t=Sum('downloadsCount'))['t'] or 0,
+        'totalUsers': User.objects.count(),
+    }
 
-        number = request.GET.get('page')
-        page, pageLinks =  util.nav_page( number ,File.objects.order_by('-downloadsCount'))
-        if pageLinks is None and page is not None:
-            return render(request, "fastFile/index.html",{
-                'page':page,
-            })
-        elif pageLinks is None and page is None:
-            return render(request, "fastFile/index.html", {
-                "message": 'Page not exist'  
-            })
-        else:
-            return render(request,"fastFile/index.html",{
-                'page':page,
-                'linkPages':pageLinks
-            })
+def index(request):
+    number = request.GET.get('page')
+    page, pageLinks =  util.nav_page( number ,File.objects.select_related('postedBy').order_by('-downloadsCount'))
+    context = {'stats': site_stats(), 'isHome': True}
+    if page is None:
+        context['message'] = 'Page not exist'
+    else:
+        context.update({'page': page, 'linkPages': pageLinks})
+    return render(request, "fastFile/index.html", context)
     
 def login_view(request):
     if request.method == "POST":
@@ -41,6 +42,9 @@ def login_view(request):
         user = authenticate(username=username,password=password)
         if user is not None:
             login(request,user)
+            nxt = request.POST.get('next') or request.GET.get('next')
+            if nxt and url_has_allowed_host_and_scheme(nxt, allowed_hosts={request.get_host()}):
+                return redirect(nxt)
             return redirect('index')
         else:
             return render(request,'fastFile/login.html',{
@@ -101,50 +105,31 @@ def search(request):
     files = File.objects.filter(name__icontains=q).order_by('-downloadsCount')
     
     page, pageLinks =  util.nav_page( number,files)
-    if pageLinks is None and page is not None:
-            return render(request, "fastFile/index.html",{
-                'page':page,
-            })
-    elif pageLinks is None and page is None:
+    if page is None:
             return render(request, "fastFile/index.html", {
-                "message": 'Page not exist'  
+                "message": 'Page not exist', 'query': q
             })
-    else:
-            return render(request,"fastFile/index.html",{
+    return render(request,"fastFile/index.html",{
                 'page':page,
-                'linkPages':pageLinks
+                'linkPages':pageLinks,
+                'query': q,
             })
 
 def fileName(request,fileName):
-    file = File.objects.filter(name=fileName)
-    if file.exists():
-        file = file.first()
-
-        if file.userPermition or file.password != None:
-            if request.user in file.allowedUsers.all():
-                return render(request, 'fastFile/file.html',{
-                    'name':file.name,
-                    'author':file.postedBy,
-                    'dateAndTime':file.postedAt,
-                    'downloads':file.downloadsCount
-                })
-            
-            else:
-                return render(request,'fastFile/index.html',{
-                    'message':'You not have permition'
-                }) 
-        else:
-            return render(request, 'fastFile/file.html',{
-                    'name':file.name,
-                    'author':file.postedBy,
-                    'dateAndTime':file.postedAt,
-                    'downloads':file.downloadsCount
-                })
-    
-    else:
+    file = File.objects.filter(name=fileName).first()
+    if file is None:
         return render(request,'fastFile/index.html',{
             'message':'This file not exist'
-        })    
+        })
+    return render(request, 'fastFile/file.html',{
+        'file': file,
+        'name':file.name,
+        'author':file.postedBy,
+        'dateAndTime':file.postedAt,
+        'downloads':file.downloadsCount,
+        'canDownload': file.can_download(request.user),
+        'pendingRequest': request.user.is_authenticated and RequestMessage.objects.filter(caller=request.user, file=file).exists(),
+    })
 
 def download_file(request,fileName):
     
@@ -152,12 +137,12 @@ def download_file(request,fileName):
     
     if file.exists():
         file = file.first()
-        if file.userPermition or file.password != None:
-            if request.user in file.allowedUsers.all():
+        if file.is_restricted:
+            if file.can_download(request.user):
             
                 content = open(file.file.path,'rb')
                 response = FileResponse(content)
-                response['Content-Disposition'] = 'attachment; filename="%s"' % file.file.name
+                response['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(file.file.name)
 
                 
             else:
@@ -168,7 +153,7 @@ def download_file(request,fileName):
         else:
             content = open(file.file.path,'rb')
             response = FileResponse(content)
-            response['Content-Disposition'] = 'attachment; filename="%s"' % file.file.name
+            response['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(file.file.name)
 
             
         if request.session.get('lastDownload', None) == None or request.session.get('lastDownload', None) != file.file.name:
@@ -189,7 +174,7 @@ def perfil(request,username):
         number = request.GET.get('page')
         user = User.objects.filter(username=username)
         if not user.exists():
-            return render(request, "fastFile/perfil.html")
+            return render(request, "fastFile/perfil.html", {'user': None})
         user = user.first()
         if request.user == user:
             inbox = True
@@ -201,6 +186,7 @@ def perfil(request,username):
             
             inbox = False
             messages = False
+            requests = False
         page, pageLinks =  util.nav_page( number ,File.objects.filter(postedBy=user).order_by('-downloadsCount'))
         if pageLinks is None and page is not None:
             return render(request, "fastFile/perfil.html",{

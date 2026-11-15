@@ -1,28 +1,66 @@
 {% extends "fastFile/layout.html" %}
-{% block title %}
-    {{name}}
-{% endblock %}
-{% load static %}
-
-{% block style %}
-<link rel="stylesheet" href="{% static 'fastFile/css/file.css'%}">
-{% endblock %}
+{% block title %}{{ name }}{% endblock %}
 
 {% block body %}
-    <div id="div-h1">
-        <h1>{{name}}</h1>
-    </div>
-    <div id="div-h2-h3">
-        <h3>Upload By: <a href="{% url 'perfil' username=author %}">{{author}}</a></h2>
-        <h3>{{dateAndTime}}</h3>
-    </div>
-    <div id="div-download">
-        <a href="{% url 'download' fileName=name %}" id="download">
-            
-                <h2>download</h2>
-            
-        </a>
-        <h3>{{downloads}} Downloads</h3>
-    </div>
-    
+<div class="container">
+    <article class="panel detail" data-kind="{{ file.kind }}">
+        <div class="detail-hero">
+            <div class="file-icon" aria-hidden="true">
+                {% include "fastFile/partials/file_icon.html" with kind=file.kind %}
+                <span class="file-ext">{{ file.extension|truncatechars:6 }}</span>
+            </div>
+            <h1>{{ name }}</h1>
+            <div class="badges">
+                {% if not file.is_restricted %}
+                    <span class="badge badge-free"><i data-lucide="globe"></i>Free download</span>
+                {% else %}
+                    {% if file.has_password %}<span class="badge badge-lock"><i data-lucide="key-round"></i>Password protected</span>{% endif %}
+                    {% if file.userPermition %}<span class="badge badge-perm"><i data-lucide="shield-check"></i>Owner approval</span>{% endif %}
+                    {% if canDownload %}<span class="badge badge-ok"><i data-lucide="badge-check"></i>You have access</span>{% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <dl class="detail-grid">
+            <div><dt><i data-lucide="user-round"></i>Uploaded by</dt><dd><a href="{% url 'perfil' username=author.username %}">{{ author.username }}</a></dd></div>
+            <div><dt><i data-lucide="calendar"></i>Date</dt><dd>{{ dateAndTime|date:"M d, Y · H:i" }}</dd></div>
+            <div><dt><i data-lucide="hard-drive"></i>Size</dt><dd>{{ file.size_display }}</dd></div>
+            <div><dt><i data-lucide="download"></i>Downloads</dt><dd>{{ downloads }}</dd></div>
+        </dl>
+
+        <div class="detail-actions">
+            {% if canDownload %}
+                <a href="{% url 'download' fileName=name %}" class="btn btn-primary btn-lg" id="download-btn">
+                    <i data-lucide="download"></i><span>Download now</span>
+                </a>
+            {% elif not request.user.is_authenticated %}
+                <p class="hint">This file is restricted. Log in to unlock it or ask the owner for access.</p>
+                <a href="{% url 'login' %}?next={{ request.path|urlencode }}" class="btn btn-primary btn-lg"><i data-lucide="log-in"></i><span>Log in to continue</span></a>
+            {% else %}
+                <div class="lock-box">
+                    {% if file.has_password %}
+                    <form id="inline-unlock" data-name="{{ name }}">
+                        <label for="inline-password" class="sr-only">File password</label>
+                        <div class="input-wrap">
+                            <i data-lucide="lock"></i>
+                            <input class="input" id="inline-password" type="password" required autocomplete="off" placeholder="Enter file password">
+                            <button type="button" class="toggle-pass" aria-label="Show password"><i data-lucide="eye"></i></button>
+                        </div>
+                        <button class="btn btn-accent" type="submit"><i data-lucide="lock-open"></i><span>Unlock</span></button>
+                    </form>
+                    {% endif %}
+                    {% if file.has_password and file.userPermition %}<div class="divider">or</div>{% endif %}
+                    {% if file.userPermition %}
+                        {% if pendingRequest %}
+                            <button class="btn btn-ghost btn-block" disabled><i data-lucide="hourglass"></i><span>Request sent — waiting for {{ author.username }}</span></button>
+                        {% else %}
+                            <button class="btn btn-ghost btn-block" data-request="{{ name }}"><i data-lucide="send"></i><span>Ask {{ author.username }} for access</span></button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
+            <a class="btn btn-ghost" href="{% url 'index' %}"><i data-lucide="arrow-left"></i><span>Back to explore</span></a>
+        </div>
+    </article>
+</div>
 {% endblock %}

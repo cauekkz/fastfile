@@ -1,37 +1,34 @@
 {% extends "fastFile/layout.html" %}
-{% block title %}
-    Register
-{% endblock %}
-{% load static %}
-{% block style %}
-    <link rel="stylesheet" href="{% static 'fastFile/css/login.css'%}">
-{% endblock %}
+{% block title %}Sign up{% endblock %}
+
 {% block body %}
-<div id="div-form-login">
-    <h1>Register</h1>
-    <form action="{% url 'register' %}" method="post">
-        {% csrf_token %}
-       
-        {% if message%}
-            <span class="error-login">{{message}}</span>
-        {% endif %}
-        <div class="form-group">
-            <label  for="username">username</label>
-            <input autofocus required class="form-control" id="username" type="text" name="username" placeholder="username">
-        </div>
-        <div class="form-group">
-            <label  for="email">email</label>
-            <input required class="form-control" id="email" type="email" name="email" placeholder="email">
-        </div>
-        <div class="form-group">
-            <label for="password">password</label>
-            <input class="form-control" required id="password" type="password" name="password" placeholder="password">
-        </div>
-        <div class="form-group">
-            <label for="confirmation">confirmation password</label>
-            <input class="form-control" required id="confirmation" type="password" name="confirmation" placeholder="password">
-        </div>
-        <button  type="submit" >Register</button>        
-    </form>
+<div class="container auth-wrap">
+    <div class="panel auth-card">
+        {% include "fastFile/partials/auth_art.html" with heading="New account" %}
+        <form class="auth-form" action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <h1>Create account</h1>
+            
+            {% if message %}<div class="alert alert-error" role="alert"><i data-lucide="circle-alert"></i>{{ message }}</div>{% endif %}
+            <div class="field">
+                <label for="username">Username</label>
+                <div class="input-wrap"><i data-lucide="at-sign"></i><input class="input" autofocus required id="username" type="text" name="username" autocomplete="username" placeholder="your_username"></div>
+            </div>
+            <div class="field">
+                <label for="email">Email</label>
+                <div class="input-wrap"><i data-lucide="mail"></i><input class="input" required id="email" type="email" name="email" autocomplete="email" placeholder="you@example.com"></div>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <div class="input-wrap"><i data-lucide="lock"></i><input class="input" required minlength="8" id="password" type="password" name="password" autocomplete="new-password" placeholder="At least 8 characters"><button type="button" class="toggle-pass" aria-label="Show password"><i data-lucide="eye"></i></button></div>
+            </div>
+            <div class="field">
+                <label for="confirmation">Confirm password</label>
+                <div class="input-wrap"><i data-lucide="lock-keyhole"></i><input class="input" required minlength="8" id="confirmation" type="password" name="confirmation" autocomplete="new-password" placeholder="Repeat the password"></div>
+            </div>
+            <button class="btn btn-primary btn-lg btn-block" type="submit"><span>Create account</span><i data-lucide="arrow-right"></i></button>
+            <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+        </form>
+    </div>
 </div>
 {% endblock %}

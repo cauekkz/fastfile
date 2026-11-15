@@ -1,32 +1,27 @@
 {% extends "fastFile/layout.html" %}
-{% block title %}
-    login
-{% endblock %}
-{% load static %}
-
-{% block style %}
-    <link rel="stylesheet" href="{% static 'fastFile/css/login.css'%}">
-{% endblock %}
+{% block title %}Log in{% endblock %}
 
 {% block body %}
-    <div id="div-form-login">
-        <h1>Login</h1>
-        <form action="{% url 'login' %}" method="post">
+<div class="container auth-wrap">
+    <div class="panel auth-card">
+        {% include "fastFile/partials/auth_art.html" with heading="Log in" %}
+        <form class="auth-form" action="{% url 'login' %}" method="post" novalidate>
             {% csrf_token %}
-           
-            {% if message%}
-                <span class="error-login">{{message}}</span>
-            {% endif %}
-            <div class="form-group">
-                <label  for="username">username</label>
-                <input autofocus required class="form-control" id="username" type="text" name="username" placeholder="username">
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            <h1>Log in</h1>
+            
+            {% if message %}<div class="alert alert-error" role="alert"><i data-lucide="circle-alert"></i>{{ message }}</div>{% endif %}
+            <div class="field">
+                <label for="username">Username</label>
+                <div class="input-wrap"><i data-lucide="at-sign"></i><input class="input" autofocus required id="username" type="text" name="username" autocomplete="username" placeholder="your_username"></div>
             </div>
-            <div class="form-group">
-                <label for="password">password</label>
-                <input class="form-control" required id="password" type="password" name="password" placeholder="password">
+            <div class="field">
+                <label for="password">Password</label>
+                <div class="input-wrap"><i data-lucide="lock"></i><input class="input" required id="password" type="password" name="password" autocomplete="current-password" placeholder="••••••••"><button type="button" class="toggle-pass" aria-label="Show password"><i data-lucide="eye"></i></button></div>
             </div>
-            <button  type="submit" >Login</button>        
+            <button class="btn btn-primary btn-lg btn-block" type="submit"><span>Log in</span><i data-lucide="arrow-right"></i></button>
+            <p class="auth-switch">New here? <a href="{% url 'register' %}">Create an account</a></p>
         </form>
     </div>
-    
+</div>
 {% endblock %}

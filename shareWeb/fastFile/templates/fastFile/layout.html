@@ -1,111 +1,63 @@
-{% load static %}
-
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>{% block title %}{% endblock %}</title>
-        {% block meta %}
-        {% endblock %}
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link href="{% static 'fastFile/css/styles.css' %}" rel="stylesheet">
-        {% block style %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{% endblock %} · fastFile</title>
+    {% block meta %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="{% static 'fastFile/css/app.css' %}" rel="stylesheet">
+    {% block style %}{% endblock %}
+</head>
+<body data-auth="{{ request.user.is_authenticated|yesno:'1,0' }}">
 
-        {% endblock %}
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="{% url 'index' %}"><span id="fast-span">Fast</span><span id="file-span">File</span></a>
-          
-            <div>
-              <ul class="navbar-nav mr-auto">
-                {% if user.is_authenticated %}
-                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'perfil' username=request.user.username %}">Perfil</a>
+    <nav class="navbar" aria-label="Main">
+        <div class="container">
+            <a class="brand" href="{% url 'index' %}" aria-label="fastFile home">
+                <span class="brand-mark"><i data-lucide="zap"></i></span>
+                <span class="brand-text"><span class="fast">fast</span><span class="file">File</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a class="nav-link {% if isHome %}active{% endif %}" href="{% url 'index' %}"><i data-lucide="compass"></i><span class="nav-label-sm">Explore</span></a></li>
+                {% if request.user.is_authenticated %}
+                    {% with pending=request.user.requestsMessages.count notes=request.user.messages.count %}
+                    <li><a class="nav-link {% if request.resolver_match.url_name == 'upload' %}active{% endif %}" href="{% url 'upload' %}"><i data-lucide="upload-cloud"></i><span class="nav-label-sm">Upload</span></a></li>
+                    <li>
+                        <a class="nav-link {% if inbox %}active{% endif %}" href="{% url 'perfil' username=request.user.username %}" aria-label="Profile and inbox{% if pending or notes %}, {{ pending|add:notes }} new{% endif %}">
+                            <i data-lucide="user-round"></i><span class="nav-label-sm">{{ request.user.username }}</span>
+                            {% if pending or notes %}<span class="nav-badge">{{ pending|add:notes }}</span>{% endif %}
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'upload' %}"><strong>Upload</strong></a>
-                    </li>
-                    
-                        {% if inbox %}
-                            <li class="nav-item" id="inbox-li">
-                                <strong class="nav-link"  id="inbox-icon" style="cursor: pointer;">&#128231;</strong>
-                                <dialog id="inbox">
-                            {% for rqst in requests%}
-                                <article data-id="{{rqst.id}}" data-user="{{rqst.caller.username}}">
-                                    
-                                    <div class="span-request">
-                                        <span>{{rqst.sendAt}}</span>
-                                        <span>{{rqst.message}}</span>
-                                    </div>
-
-                                    <div class="div-request">
-                                        <button class="btn-decision" style="color: greenyellow;" data-decision="True">
-                                            <b>&#10003;</b>
-                                        </button>
-                                        <button class="btn-decision" style="color: red;" data-decision="">
-                                            <b>X</b>
-                                        </button>
-                                    </div>
-
-                                </article>
-
-                            {% endfor %}
-                            {% for message in messages %}
-
-                                        <article class="messagesArticle" data-id="message.id">
-                                            <div class="span-request">
-                                            <span>{{message.sendAt}}</span>
-                                            <span class="span-name-user">{{message.message}}</span>
-                                            </div>
-                                        </article>
-                            
-                             
-                                    {% empty %}
-                                
-                                    
-                            {% endfor %}
-                                </dialog>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'settings' %}"><b>&#9881;</b></a>
-                            </li> 
-                            
-                        {% endif %}
-                    
-                    
-                   
-                    
-                {% endif %}
-                <li class="nav-item">
-                  
-                    
-                </li>
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                    </li>
+                    {% endwith %}
+                    <li><a class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}" href="{% url 'settings' %}" aria-label="Settings"><i data-lucide="settings"></i></a></li>
+                    <li><a class="nav-link" href="{% url 'logout' %}" aria-label="Log out"><i data-lucide="log-out"></i></a></li>
                 {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Register</a>
-                    </li>
+                    <li><a class="nav-link" href="{% url 'login' %}"><i data-lucide="log-in"></i><span class="nav-label-sm">Log in</span></a></li>
+                    <li><a class="btn btn-primary" href="{% url 'register' %}"><span>Sign up</span></a></li>
                 {% endif %}
-              </ul>
-            </div>
-        </nav>
-        
-        <main>
-            {% block body %}
-                
-            
-            {% endblock %}
-        </main>
-        
-   
-        {% block script %}
-        {% endblock %}
-    </body>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <span>fastFile</span>
+            <span>a django file locker</span>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+    <script src="{% static 'fastFile/js/app.js' %}"></script>
+    {% block script %}{% endblock %}
+</body>
 </html>

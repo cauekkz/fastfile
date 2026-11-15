@@ -1,45 +1,66 @@
 {% extends "fastFile/layout.html" %}
-{% block title %}
-    upload
-{% endblock %}
-{% load static %}
-
-{% block style %}
-    <link rel="stylesheet" href="{% static 'fastFile/css/upload.css' %}">
-{% endblock %}
+{% block title %}Upload{% endblock %}
 
 {% block body %}
-    <div id="div-form-upload">
-        
-        <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data" id="form-upload">
+<div class="container upload-wrap">
+    <header class="page-title">
+        <h1>Upload a file</h1>
+        <p>Pick a file, give it a unique name and choose who can download it.</p>
+    </header>
+
+    <div class="panel panel-pad" style="margin-top:20px">
+        <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data" class="upload-form" id="form-upload">
             {% csrf_token %}
-       
-            {% if message %}
-                <span class="error-login">{{message}}</span>
-            {% endif %}
-            <div class="div-input">
-                <label  for="fileName">file name</label>
-                <input autofocus required class="form-control" id="fileName" type="text" name="fileName" placeholder="file name">
-            </div>
-            <div class="div-input">
-                <label  for="password" ><abbr title="Users need a password to download; if you don't enter it, a password is not required to download">password</abbr></label>
-                <input  class="form-control" id="password" type="password" name="password" placeholder="password ">
-            </div>
-            <div class="div-input">
-                <label  for="confirmation" > password confirmation</label>
-                <input  class="form-control" id="confirmation" type="password" name="confirmation" placeholder="password">
-            </div>
-            <div id="div-input-file">
-                <label for="file"><img src="{% static 'fastFile/images/file.png' %}" alt="file-image"></label>
+            {% if message %}<div class="alert alert-error" role="alert" style="margin:0"><i data-lucide="circle-alert"></i>{{ message }}</div>{% endif %}
+
+            <label class="dropzone" id="dropzone" for="file">
                 <input required id="file" type="file" name="file">
+                <span class="dz-icon"><i data-lucide="upload-cloud"></i></span>
+                <strong>Drop your file here or click to browse</strong>
+                <span>Any type · it will be listed publicly by name</span>
+                <span class="dz-file" id="dz-file"><i data-lucide="circle-check"></i><em></em></span>
+            </label>
+
+            <div class="field">
+                <label for="fileName">File name</label>
+                <div class="input-wrap"><i data-lucide="type"></i><input class="input" required maxlength="100" id="fileName" type="text" name="fileName" placeholder="e.g. Vacation photos 2026"></div>
+                <span class="hint">Must be unique — it becomes the file's link.</span>
             </div>
-            <div id="div-input-checkbox">
-                <label for="CP"><abbr title="allows users to send requests to download your file">creator's permission</abbr></label>
-                <input type="checkbox" name="creatorPermition" id="CP" >
+
+            <div>
+                <label class="switch-row" for="use-password">
+                    <span class="stat-icon tint-amber"><i data-lucide="key-round"></i></span>
+                    <span class="switch-text"><strong>Protect with password</strong><span>People who know the password get unlimited downloads.</span></span>
+                    <span class="switch"><input type="checkbox" id="use-password"><span class="track"></span></span>
+                </label>
+                <div class="collapse" id="password-collapse">
+                    <div><div class="collapse-inner two">
+                        <div class="field">
+                            <label for="password">Password</label>
+                            <div class="input-wrap"><i data-lucide="lock"></i><input class="input" maxlength="100" id="password" type="password" name="password" autocomplete="new-password" placeholder="File password"><button type="button" class="toggle-pass" aria-label="Show password"><i data-lucide="eye"></i></button></div>
+                        </div>
+                        <div class="field">
+                            <label for="confirmation">Confirm password</label>
+                            <div class="input-wrap"><i data-lucide="lock-keyhole"></i><input class="input" maxlength="100" id="confirmation" type="password" name="confirmation" autocomplete="new-password" placeholder="Repeat password"></div>
+                        </div>
+                    </div></div>
+                </div>
             </div>
-            <div id="div-button">
-                <button type="submit">upload</button>
-            </div>
+
+            <label class="switch-row" for="CP">
+                <span class="stat-icon tint-blue"><i data-lucide="shield-check"></i></span>
+                <span class="switch-text"><strong>Require my approval</strong><span>Users send you a request; you accept or reject from your inbox.</span></span>
+                <span class="switch"><input type="checkbox" name="creatorPermition" id="CP"><span class="track"></span></span>
+            </label>
+
+            <div class="upload-progress" id="upload-progress" aria-hidden="true"><span></span></div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-block" id="upload-btn"><i data-lucide="upload"></i><span>Upload file</span></button>
         </form>
     </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{% load static %}<script src="{% static 'fastFile/js/upload.js' %}"></script>
 {% endblock %}

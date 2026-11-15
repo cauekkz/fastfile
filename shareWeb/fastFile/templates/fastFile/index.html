@@ -1,104 +1,52 @@
 {% extends "fastFile/layout.html" %}
-{% block title %}
-    fastFile
-{% endblock %}
-{% block meta %}
-    <meta name="csrf-token" content="{{ csrf_token }}">
-{% endblock %}
-{% load static %}
-{% block style %}
-<link rel="stylesheet" href="{% static 'fastFile/css/index.css'%}">
-{% endblock %}
+{% block title %}{% if query %}Search: {{ query }}{% else %}Explore{% endif %}{% endblock %}
+
 {% block body %}
-
-<nav id="nav-query">
-    <search>
-        <form action="{% url 'search' %}" id="form-search-file">
-            <input type="search" placeholder="&#x1F50E; file name" name="q">
-        </form>
-    </search>
-    
-</nav>
-
-<dialog>
-    <div class="div-dialog-title">
-        <h5>password is nescessary</h5>
-        
-    </div>
-        <form action="{% url 'requests' %}" id="password-form">
-            <input type="password" placeholder="*************" required autofocus autocomplete="off">
-            <input type="submit">
-        </form>
-</dialog>
-<dialog id="alert-email">
-    <span id="email-mensage"></span>
-</dialog>
-{% if message %}
-
-<div class="div-error-login">
-    <span class="error-login">{{message}}</span>
-</div>
-{% endif %}
-<div id="div-links">
-{% for file in page.object_list %}
-
-    <article>
-    <a class="link-file" href="{% url 'fileName' fileName=file.name %}">
-            <h3>{{file.name}}</h3>
-    </a>
-    <div class="infos">
-        <span><a href="{% url 'perfil' username=file.postedBy.username %}">{{file.postedBy}}</a></span>  <span>{{file.postedAt}}</span> <span>{{file.downloadsCount}}</span>
-    </div> 
-    <div class="infos">
-        <div class="requireds">
-        {% if file.password != ''  %}
-            {% if request.user not in file.allowedUsers.all  %}
-                <span class="lock">&#128274;</span>
-            {% else %}           
-                <span>&#10003;</span>
-            {% endif%}
+<section class="hero">
+    <div class="container">
+        {% if query %}
+            <h1>Results for <mark>“{{ query }}”</mark></h1>
+            <p class="lead">{{ page.paginator.count|default:0 }} file{{ page.paginator.count|pluralize }} matched your search.</p>
+        {% else %}
+            <h1>Drop it. Lock it. <mark>Share it.</mark></h1>
+            <p class="lead">Public files, password-locked files, and files only you can approve.</p>
         {% endif %}
+
+        <search class="search">
+            <form action="{% url 'search' %}" role="search">
+                <label class="search-field">
+                    <span class="sr-only">Search files by name</span>
+                    <i data-lucide="search"></i>
+                    <input type="search" name="q" value="{{ query|default:'' }}" placeholder="Search files by name…" autocomplete="off">
+                    <button class="btn btn-primary" type="submit"><span>Search</span></button>
+                </label>
+            </form>
+        </search>
+
+        {% if stats %}
+        <div class="stats">
+            <div class="stat"><span class="stat-icon tint-blue"><i data-lucide="files"></i></span><div><strong data-count="{{ stats.totalFiles }}">{{ stats.totalFiles }}</strong><span>Files shared</span></div></div>
+            <div class="stat"><span class="stat-icon tint-amber"><i data-lucide="download"></i></span><div><strong data-count="{{ stats.totalDownloads }}">{{ stats.totalDownloads }}</strong><span>Downloads</span></div></div>
+            <div class="stat"><span class="stat-icon tint-violet"><i data-lucide="users"></i></span><div><strong data-count="{{ stats.totalUsers }}">{{ stats.totalUsers }}</strong><span>Creators</span></div></div>
         </div>
-        <div class="requireds">
-        {% if file.userPermition %}
-            {% if request.user not in file.allowedUsers.all  %}
-                
-                    <button class="request-button">request</button>
-              
-            
-            {% else%}
-                <span>&#10003;</span>
-                
-            {% endif%}
-            
         {% endif %}
-        </div>
     </div>
-    </article>
+</section>
 
-
-{% empty %}
-
-{% endfor %}
-</div>
-
-<nav aria-label="Page navigation example" id="nav-pages">
-    <ul class="pagination">
-    {% if page.has_previous %}
-        <li class="page-item"><a class="page-link" href="{% url 'index' %}?page={{page.previous_page_number}}">Previous</a></li>
+<section class="container">
+    {% if message %}
+        <div class="alert alert-error"><i data-lucide="circle-alert"></i>{{ message }}</div>
     {% endif %}
-        {% for i in linkPages %}
-    
-            <li class="page-item"><a class="page-link" href="{% url 'index' %}?page={{i}}">{{i}}</a></li>
-        
-        {% endfor %}
-    {% if page.has_next %}
-        <li class="page-item"><a class="page-link" href="{% url 'index' %}?page={{page.next_page_number}}">Next</a></li>
-    {% endif %}
-    </ul>
-</nav>
-{% endblock %}
-{% block script %}
-    <script src="{% static 'fastFile/js/requests.js' %}"></script>
 
+    {% if page %}
+        <div class="section-head">
+            <div>
+                <h2><i data-lucide="flame"></i>{% if query %}Matches{% else %}Most downloaded{% endif %}</h2>
+                <p>Sorted by popularity · page {{ page.number }} of {{ page.paginator.num_pages }}</p>
+            </div>
+            {% if query %}<a class="btn btn-ghost" href="{% url 'index' %}"><i data-lucide="x"></i><span>Clear search</span></a>{% endif %}
+        </div>
+        {% include "fastFile/partials/file_grid.html" %}
+    {% endif %}
+</section>
 {% endblock %}
